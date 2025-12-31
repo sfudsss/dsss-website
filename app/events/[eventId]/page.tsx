@@ -7,17 +7,25 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Calendar, MapPin, Users, Clock, Trophy, ArrowLeft, ExternalLink } from "lucide-react"
 import { getEventById, getAllEvents } from "@/lib/events-data"
 
+export const dynamicParams = false
+
 // This ensures all event routes are pre-rendered at build time
 export async function generateStaticParams() {
   const events = getAllEvents()
+
+  console.log(
+    "[v0] Generating static params for events:",
+    events.map((e) => e.id),
+  )
 
   return events.map((event) => ({
     eventId: event.id,
   }))
 }
 
-export default function EventDetailPage({ params }: { params: { eventId: string } }) {
-  const event = getEventById(params.eventId)
+export default async function EventDetailPage({ params }: { params: Promise<{ eventId: string }> }) {
+  const { eventId } = await params
+  const event = getEventById(eventId)
 
   if (!event) {
     notFound()
